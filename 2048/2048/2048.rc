@@ -1,0 +1,96 @@
+// Microsoft Visual C++ generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include "winres.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// Русский (Россия) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_RUS)
+LANGUAGE LANG_RUSSIAN, SUBLANG_DEFAULT
+#pragma code_page(1251)
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE 
+BEGIN
+    "#include ""winres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE 
+BEGIN
+    "\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Menu
+//
+
+IDR_MENU1 MENU
+BEGIN
+    POPUP "Constrols"
+    BEGIN
+        POPUP "Keys"
+        BEGIN
+            MENUITEM "Up\t^",                       ID_KEY_UP
+            MENUITEM "Down\tv",                     ID_KEY_DOWN
+            MENUITEM "Left\t<",                     ID_KEY_LEFT
+            MENUITEM "Right\t>",                    ID_KEY_RIGHT
+        END
+    END
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Accelerator
+//
+
+IDR_ACCELERATOR2 ACCELERATORS
+BEGIN
+    "Z",            ID_KEY_BACK,            VIRTKEY, CONTROL, NOINVERT
+    VK_DOWN,        ID_KEY_DOWN,            VIRTKEY, NOINVERT
+    VK_LEFT,        ID_KEY_LEFT,            VIRTKEY, NOINVERT
+    VK_RIGHT,       ID_KEY_RIGHT,           VIRTKEY, NOINVERT
+    VK_UP,          ID_KEY_UP,              VIRTKEY, NOINVERT
+END
+
+#endif    // Русский (Россия) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+
