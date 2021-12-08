@@ -1,13 +1,14 @@
 #pragma once
+#include "constants.h"
 #include "Block.h"
 
 class Game
 {
 public:
-	Block field[4][4];
-	int saveField[4][4];
-	int Score;
-	int BestScore;
+	Block field[MAX_FIELD_SIZE][MAX_FIELD_SIZE];
+	int saveField[MAX_FIELD_SIZE][MAX_FIELD_SIZE];
+	long Score;
+	long BestScore;
 	int ElementsCount;
 
 
@@ -16,6 +17,15 @@ public:
 
 	void StartNewGame(HWND hWnd);
 	void RandomizeValueOneTile();
+
+	void SaveIntoHistory();
+
+	void KeyUpHandler();
+	void KeyDownHandler();
+	void KeyLeftHandler();
+	void KeyRightHandler();
+
+	bool isGameOver();
 
 	~Game();
 

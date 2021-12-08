@@ -6,8 +6,10 @@
 #define WINDOW_HEIGHT 600 //Высота окна(для удобства)
 #define PLAYINGFIELD_SIZE 360 //размер игрового поля
 #define PLAYINGFIELD_MARGIN 20 //отступ игрового поля
-#define TILE_PADDING 7 //"зазор" между плитками(используется при отрисовке)
+//#define TILE_PADDING 7 //"зазор" между плитками(используется при отрисовке)
+#define MAX_FIELD_SIZE 6
 
 const TCHAR szClassWindow[] = TEXT("2048");
 
-static int FIELD_SIZE = 4;
+
+//static int TILE_PADDING = 4;

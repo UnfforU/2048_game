@@ -10,8 +10,14 @@ RECT clientRect;
 int windowWidth;
 int windowHeight;
 
-Painter* painter = new Painter;
-Game* game = new Game;
+int FIELD_SIZE;
+float TILE_SIZE;
+int currTilePadding;
+
+bool isEnd;
+
+Painter* painter;
+Game* game;
 
 
 void UpdateWinSizeParams(HWND hWnd);
@@ -37,12 +43,24 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
 		switch (LOWORD(wParam))
 		{
 		case ID_KEY_UP:
+			game->KeyUpHandler();
+			game->RandomizeValueOneTile();
+			InvalidateRect(hWnd, NULL, 1);
 			break;
 		case ID_KEY_DOWN:
+			game->KeyDownHandler();
+			game->RandomizeValueOneTile();
+			InvalidateRect(hWnd, NULL, 1);
 			break;
 		case ID_KEY_LEFT:
+			game->KeyLeftHandler();
+			game->RandomizeValueOneTile();
+			InvalidateRect(hWnd, NULL, 1);
 			break;
 		case ID_KEY_RIGHT:
+			game->KeyRightHandler();
+			game->RandomizeValueOneTile();
+			InvalidateRect(hWnd, NULL, 1);
 			break;
 		case ID_KEY_BACK:
 			break;
@@ -51,7 +69,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
 		}
 		
 	case WM_PAINT:
-		painter->Redraw();
+		painter->Redraw(*game);
+		isEnd = (game->isGameOver()) ? true : false;
 		break;
 	case WM_DESTROY:
 		PostQuitMessage(0);
@@ -111,7 +130,16 @@ int WINAPI WinMain(HINSTANCE hInstanse, HINSTANCE, LPSTR lpCmdLine, int nCmdShow
 
 	SetMenu(hWnd, hMenu);
 	
+
+	FIELD_SIZE = 4;
+	currTilePadding = TILE_PADDING[FIELD_SIZE - 3];
+	TILE_SIZE = PLAYINGFIELD_SIZE / FIELD_SIZE - 2 * currTilePadding;
+
+	painter = new Painter();
+	game = new Game();
+
 	painter->SetHWND(hWnd);
+	game->StartNewGame(hWnd);
 	InvalidateRect(hWnd, NULL, 1);
 
 	ShowWindow(hWnd, nCmdShow);

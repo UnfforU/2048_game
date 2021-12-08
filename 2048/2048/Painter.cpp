@@ -4,9 +4,13 @@
 #include "constants.h"
 #include "HelpLib.h"
 
+extern int currTilePadding;
+extern float TILE_SIZE;
+extern int FIELD_SIZE;
+
 Painter::Painter()
 {
-	this->TILE_SIZE = PLAYINGFIELD_SIZE / FIELD_SIZE - 2* TILE_PADDING;
+	
 }
 
 void Painter::SetHWND(HWND hWnd) 
@@ -19,9 +23,42 @@ void Painter::SetHWND(HWND hWnd)
 	ReleaseDC(hWnd, hDC);
 }
 
-void Painter::Redraw()
+void Painter::Redraw(Game game)
 {
-	DrawMainElements(0, 10);
+	DrawMainElements(game.Score, game.BestScore);
+	wchar_t buff[100];
+	int fontHeight = 25;
+	for (int i = 0; i < FIELD_SIZE; i++) {
+		for (int j = 0; j < FIELD_SIZE; j++) {
+			if (game.field[i][j].value != 0) {
+				HBRUSH hBlockBrush = CreateSolidBrush(game.field[i][j].color);
+				SelectObject(memDC, hBlockBrush);
+				RoundRect(memDC, game.field[i][j].pos.x, game.field[i][j].pos.y, game.field[i][j].pos.x + TILE_SIZE, game.field[i][j].pos.y + TILE_SIZE, 15, 13);
+				SetBkColor(memDC, game.field[i][j].color);
+
+				if ((game.field[i][j].value == 2) || (game.field[i][j].value == 4)) { SetTextColor(memDC, RGB(119, 110, 101)); }
+				else { SetTextColor(memDC, RGB(255, 255, 255)); }
+
+				HFONT oldFont, newFont;
+				newFont = CreateFont(fontHeight, 0, 0, 0, 0, 0, 0, 0, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,
+					DEFAULT_PITCH | FF_DONTCARE, L"Arial");
+
+				oldFont = (HFONT)SelectObject(memDC, newFont);
+
+				swprintf_s(buff, L"%d\0", game.field[i][j].value);
+
+				int delX = GetDeltaX(game.field[i][j].value);
+				int delY = TILE_SIZE / 2 - fontHeight / 2;
+				TextOut(memDC, game.field[i][j].pos.x + delX, game.field[i][j].pos.y + delY, buff, wcslen(buff));
+				SelectObject(memDC, oldFont);
+				DeleteObject(oldFont);
+				DeleteObject(newFont);
+				DeleteObject(hBlockBrush);
+
+			}
+		}
+	}
+
 	hDC = BeginPaint(hWnd, &paintstruct);
 	BitBlt(hDC, 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, memDC, 0, 0, SRCCOPY);
 	EndPaint(hWnd, &paintstruct);
@@ -91,20 +128,21 @@ void Painter::DrawMainElements(int currScore, int bestScore)
 			RoundRect
 			(
 				memDC, 
-				PLAYINGFIELD_MARGIN + j * TILE_SIZE + TILE_PADDING + tmpXPadding,
-				WINDOW_MARGIN + i * TILE_SIZE + TILE_PADDING + tmpYPadding, 
-				PLAYINGFIELD_MARGIN + j * TILE_SIZE + TILE_PADDING + TILE_SIZE + tmpXPadding,
-				WINDOW_MARGIN + i * TILE_SIZE + TILE_PADDING + TILE_SIZE + tmpYPadding,
+				PLAYINGFIELD_MARGIN + j * TILE_SIZE + currTilePadding + tmpXPadding,
+				WINDOW_MARGIN + i * TILE_SIZE + currTilePadding + tmpYPadding,
+				PLAYINGFIELD_MARGIN + j * TILE_SIZE + currTilePadding + TILE_SIZE + tmpXPadding,
+				WINDOW_MARGIN + i * TILE_SIZE + currTilePadding + TILE_SIZE + tmpYPadding,
 				15, 
 				13);
-			tmpXPadding += TILE_PADDING;
+			tmpXPadding += currTilePadding;
 		}
 		tmpXPadding = 0;
-		tmpYPadding += TILE_PADDING;
+		tmpYPadding += currTilePadding;
 	}
 
 	DeleteObject(hBrush);
 }
+
 
 Painter::~Painter()
 {

@@ -6,11 +6,12 @@ class Block
 {
 public:
 	Point pos;
-	double value;
+	int value;
 	COLORREF color;
 
-	void SetPosAndColor(int x, int y);
-
+	void SetPos(int i, int j);
+	void SetColor();
+	//wchar_t* ValueToString();
 	Block();
 	Block(int value, COLORREF color, int posX, int posY);
 

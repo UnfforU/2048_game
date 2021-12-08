@@ -1,6 +1,13 @@
+#include <Windows.h>
 #include <math.h>
+#include <string>
 #include "Block.h"
 #include "HelpLib.h"
+#include "constants.h"
+
+extern int currTilePadding;
+extern float TILE_SIZE;
+extern int FIELD_SIZE;
 
 Block::Block() {
 	this->value = 0;
@@ -16,14 +23,31 @@ Block::Block(int value, COLORREF color, int posX, int posY) {
 	this->pos.y = posY;
 }
 
-void Block::SetPosAndColor(int x, int y) 
+void Block::SetPos(int i, int j) 
 {
-	this->pos.x = x;
-	this->pos.y = y;
+	int tmpXPadding = 0;
+	int tmpYPadding = 0;
+	for (int a = 0; a < j; a++) { tmpXPadding += currTilePadding; }
+	for (int a = 0; a < i; a++) { tmpYPadding += currTilePadding; }
 
+	this->pos.x = PLAYINGFIELD_MARGIN + j * TILE_SIZE + currTilePadding + tmpXPadding;
+	this->pos.y = WINDOW_MARGIN + i * TILE_SIZE + currTilePadding + tmpYPadding;
+
+}
+
+void Block::SetColor()
+{
 	int curNum = log2(this->value);
 	this->color = Colors[curNum - 1];
 }
+
+/*wchar_t* Block::ValueToString()
+{
+	wchar_t* result = new wchar_t[100];
+	swprintf_s(result, 100, L"%d\0", value);
+	return result;
+}*/
+
 
 Block::~Block()
 {

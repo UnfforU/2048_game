@@ -26,4 +26,13 @@ struct Point
         RGB(3, 124, 190)    //131072
 };
 
+ //Различное смещение при разном размере поля(получить нужное - обратиться к элементу массива: размер поля - 3)
+ static int TILE_PADDING[4] = {
+     10,
+     7,
+     5,
+     4
+ };
+
 int GetCentreXPosByLeng(int length, int blockSize);
+int GetDeltaX(int num);

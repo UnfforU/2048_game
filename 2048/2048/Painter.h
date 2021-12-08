@@ -1,6 +1,7 @@
 #pragma once
 #include <Windows.h>
 #include "constants.h"
+#include "Game.h"
 
 class Painter
 {
@@ -9,7 +10,7 @@ public:
 
 	//»нициализируем все свойства, свз€анные с окном. «аливаем окно
 	void SetHWND(HWND hWnd);
-	void Redraw();
+	void Redraw(Game game);
 	void DrawMainElements(int currScore, int bestScore);
 
 	~Painter();
@@ -22,6 +23,5 @@ private:
 	HWND hWnd;
 	HBITMAP hBitmap;
 	PAINTSTRUCT paintstruct;
-
-	float TILE_SIZE;
+	//float TILE_SIZE;
 };
