@@ -2,6 +2,7 @@
 #include "resource.h"
 #include "constants.h"
 #include"Painter.h"
+#include "Game.h"
 
 
 RECT clientRect;
@@ -10,6 +11,7 @@ int windowWidth;
 int windowHeight;
 
 Painter* painter = new Painter;
+Game* game = new Game;
 
 
 void UpdateWinSizeParams(HWND hWnd);
@@ -31,24 +33,26 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
 
 	switch (uMsg)
 	{
-	/*case WM_COMMAND:
+	case WM_COMMAND:
 		switch (LOWORD(wParam))
 		{
 		case ID_KEY_UP:
-
+			break;
 		case ID_KEY_DOWN:
-
+			break;
 		case ID_KEY_LEFT:
-
+			break;
 		case ID_KEY_RIGHT:
-
+			break;
 		case ID_KEY_BACK:
-
+			break;
 		default:
 			break;
 		}
+		
 	case WM_PAINT:
-*/
+		painter->Redraw();
+		break;
 	case WM_DESTROY:
 		PostQuitMessage(0);
 		return 0;
@@ -91,8 +95,8 @@ int WINAPI WinMain(HINSTANCE hInstanse, HINSTANCE, LPSTR lpCmdLine, int nCmdShow
 		wc.lpszClassName,
 		szClassWindow,
 		WS_OVERLAPPEDWINDOW & ~WS_THICKFRAME & ~WS_MAXIMIZEBOX,
-		CW_USEDEFAULT,
-		CW_USEDEFAULT,
+		(GetSystemMetrics(SM_CXSCREEN) - WINDOW_WIDTH) / 2,
+		(GetSystemMetrics(SM_CYSCREEN) - WINDOW_HEIGHT) / 2,
 		WINDOW_WIDTH,
 		WINDOW_HEIGHT,
 		nullptr,
@@ -107,17 +111,18 @@ int WINAPI WinMain(HINSTANCE hInstanse, HINSTANCE, LPSTR lpCmdLine, int nCmdShow
 
 	SetMenu(hWnd, hMenu);
 	
-	//painter->SetHWND(hWnd);
+	painter->SetHWND(hWnd);
+	InvalidateRect(hWnd, NULL, 1);
 
 	ShowWindow(hWnd, nCmdShow);
 	UpdateWindow(hWnd);
 
 	while (GetMessage(&msg, nullptr, 0, 0)) {
-		//if (!TranslateAccelerator(hWnd, hAccel, &msg)) 
-		//{
+		if (!TranslateAccelerator(hWnd, hAccel, &msg)) 
+		{
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
-		//}
+		}
 	}
 
 	FinalClean();
@@ -127,4 +132,5 @@ int WINAPI WinMain(HINSTANCE hInstanse, HINSTANCE, LPSTR lpCmdLine, int nCmdShow
 void FinalClean()
 {
 	delete(painter);
+	delete(game);
 }
