@@ -8,6 +8,7 @@
 #define PLAYINGFIELD_MARGIN 20 //отступ игрового поля
 //#define TILE_PADDING 7 //"зазор" между плитками(используется при отрисовке)
 #define MAX_FIELD_SIZE 6
+#define HISTORY_SIZE 10
 
 const TCHAR szClassWindow[] = TEXT("2048");
 

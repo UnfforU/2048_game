@@ -1,11 +1,12 @@
 #include <Windows.h>
 #include "resource.h"
 #include "constants.h"
-#include"Painter.h"
+#include "Painter.h"
 #include "Game.h"
 
 
 RECT clientRect;
+HWND hWnd{};
 
 int windowWidth;
 int windowHeight;
@@ -24,6 +25,9 @@ void UpdateWinSizeParams(HWND hWnd);
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 int WINAPI WinMain(HINSTANCE hInstanse, HINSTANCE, LPSTR lpCmdLine, int nCmdShow);
+
+
+void FirstInitialize();
 void FinalClean();
 
 
@@ -43,23 +47,23 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
 		switch (LOWORD(wParam))
 		{
 		case ID_KEY_UP:
-			game->KeyUpHandler();
-			game->RandomizeValueOneTile();
+			if(game->KeyUpHandler(false))
+				game->RandomizeValueOneTile();
 			InvalidateRect(hWnd, NULL, 1);
 			break;
 		case ID_KEY_DOWN:
-			game->KeyDownHandler();
-			game->RandomizeValueOneTile();
+			if (game->KeyDownHandler(false))
+				game->RandomizeValueOneTile();
 			InvalidateRect(hWnd, NULL, 1);
 			break;
 		case ID_KEY_LEFT:
-			game->KeyLeftHandler();
-			game->RandomizeValueOneTile();
+			if (game->KeyLeftHandler(false))
+				game->RandomizeValueOneTile();
 			InvalidateRect(hWnd, NULL, 1);
 			break;
 		case ID_KEY_RIGHT:
-			game->KeyRightHandler();
-			game->RandomizeValueOneTile();
+			if (game->KeyRightHandler(false))
+				game->RandomizeValueOneTile();
 			InvalidateRect(hWnd, NULL, 1);
 			break;
 		case ID_KEY_BACK:
@@ -69,10 +73,24 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
 		}
 		
 	case WM_PAINT:
+		if (game->bestScore < game->score) { game->bestScore = game->score; };
+
 		painter->Redraw(*game);
-		isEnd = (game->isGameOver()) ? true : false;
+		//isEnd = (game->isGameOver()) ? true : false;
+		if (game->isGameOver()) {
+			int n = MessageBox(hWnd, TEXT("\t    YOU LOOSE!!!\nDo you want to go back?"), TEXT("GAME OVER"), MB_YESNO);
+			if (n == IDYES) {
+				//GetLastFromHistory();
+				InvalidateRect(hWnd, NULL, 1);
+			}
+			else {
+				SaveBestScore(game->bestScore);
+				game->StartNewGame(hWnd);
+			}
+		}
 		break;
 	case WM_DESTROY:
+		game->SaveResultsInFile();
 		PostQuitMessage(0);
 		return 0;
 	default:
@@ -82,7 +100,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
 
 int WINAPI WinMain(HINSTANCE hInstanse, HINSTANCE, LPSTR lpCmdLine, int nCmdShow) {
 	MSG msg{};
-	HWND hWnd{};
 	WNDCLASSEX wc{ sizeof(WNDCLASSEX) };
 
 	wc.cbSize = sizeof(wc);
@@ -131,15 +148,10 @@ int WINAPI WinMain(HINSTANCE hInstanse, HINSTANCE, LPSTR lpCmdLine, int nCmdShow
 	SetMenu(hWnd, hMenu);
 	
 
-	FIELD_SIZE = 4;
-	currTilePadding = TILE_PADDING[FIELD_SIZE - 3];
-	TILE_SIZE = PLAYINGFIELD_SIZE / FIELD_SIZE - 2 * currTilePadding;
-
-	painter = new Painter();
-	game = new Game();
+	FirstInitialize();
 
 	painter->SetHWND(hWnd);
-	game->StartNewGame(hWnd);
+	//game->StartNewGame(hWnd);
 	InvalidateRect(hWnd, NULL, 1);
 
 	ShowWindow(hWnd, nCmdShow);
@@ -152,9 +164,19 @@ int WINAPI WinMain(HINSTANCE hInstanse, HINSTANCE, LPSTR lpCmdLine, int nCmdShow
 			DispatchMessage(&msg);
 		}
 	}
-
+	
 	FinalClean();
 	return static_cast<int>(msg.wParam);
+}
+
+void FirstInitialize()
+{
+	FIELD_SIZE = 4;
+	currTilePadding = TILE_PADDING[FIELD_SIZE - 3];
+	TILE_SIZE = PLAYINGFIELD_SIZE / FIELD_SIZE - 2 * currTilePadding;
+
+	painter = new Painter();
+	game = new Game(hWnd);
 }
 
 void FinalClean()

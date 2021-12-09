@@ -1,5 +1,6 @@
 #pragma once
 #include <Windows.h>
+#include <string>
 
 struct Point
 {
@@ -36,3 +37,11 @@ struct Point
 
 int GetCentreXPosByLeng(int length, int blockSize);
 int GetDeltaX(int num);
+std::string intToStr(int num);
+
+void CreateNewLastSaveFile();
+void CreateNewBestScoreFile();
+
+int GetBestScore();
+void SaveBestScore(int bestScore);
+

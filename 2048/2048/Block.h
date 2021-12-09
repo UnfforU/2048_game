@@ -6,7 +6,7 @@ class Block
 {
 public:
 	Point pos;
-	int value;
+	long int value;
 	COLORREF color;
 
 	void SetPos(int i, int j);

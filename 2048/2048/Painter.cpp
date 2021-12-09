@@ -25,7 +25,7 @@ void Painter::SetHWND(HWND hWnd)
 
 void Painter::Redraw(Game game)
 {
-	DrawMainElements(game.Score, game.BestScore);
+	DrawMainElements(game.score, game.bestScore);
 	wchar_t buff[100];
 	int fontHeight = 25;
 	for (int i = 0; i < FIELD_SIZE; i++) {
@@ -40,9 +40,7 @@ void Painter::Redraw(Game game)
 				else { SetTextColor(memDC, RGB(255, 255, 255)); }
 
 				HFONT oldFont, newFont;
-				newFont = CreateFont(fontHeight, 0, 0, 0, 0, 0, 0, 0, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,
-					DEFAULT_PITCH | FF_DONTCARE, L"Arial");
-
+				newFont = CreateFont(fontHeight, 0, 0, 0, 0, 0, 0, 0, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_DONTCARE, L"Arial");
 				oldFont = (HFONT)SelectObject(memDC, newFont);
 
 				swprintf_s(buff, L"%d\0", game.field[i][j].value);
@@ -50,6 +48,7 @@ void Painter::Redraw(Game game)
 				int delX = GetDeltaX(game.field[i][j].value);
 				int delY = TILE_SIZE / 2 - fontHeight / 2;
 				TextOut(memDC, game.field[i][j].pos.x + delX, game.field[i][j].pos.y + delY, buff, wcslen(buff));
+
 				SelectObject(memDC, oldFont);
 				DeleteObject(oldFont);
 				DeleteObject(newFont);
@@ -70,7 +69,7 @@ void Painter::DrawMainElements(int currScore, int bestScore)
 	SelectObject(memDC, hBackgroundBrush);
 	Rectangle(memDC, -1, -1, WINDOW_WIDTH, WINDOW_HEIGHT);
 
-
+	//Задаем цвет текста и фона текста для 
 	SetBkColor(memDC, RGB(143, 122, 101));
 	SetTextColor(memDC, RGB(227, 216, 205));
 	wchar_t buffer[100];
@@ -102,11 +101,9 @@ void Painter::DrawMainElements(int currScore, int bestScore)
 	TextOut(memDC, WINDOW_WIDTH - 140 - txtScoreLenght + GetCentreXPosByLeng(txtScoreLenght, 100), 40, scoreTxtBuffer, wcslen(scoreTxtBuffer));//сам счет
 #pragma endregion
 
-
+	//Внешний квадрат (темносерый)
 	hBrush = CreateSolidBrush(RGB(187, 173, 160));
 	SelectObject(memDC, hBrush);
-	
-	//Внешний квадрат (темносерый)
 	RoundRect
 	(
 		memDC, 
@@ -118,13 +115,13 @@ void Painter::DrawMainElements(int currScore, int bestScore)
 		13 //y3 высота
 	);
 
+	//Внутренние квадраты(светлосерые
 	hBrush = CreateSolidBrush(RGB(205, 193, 180));
 	SelectObject(memDC, hBrush);
 	int tmpXPadding = 0;
 	int tmpYPadding = 0;
 	for (int i = 0; i < FIELD_SIZE; i++) {
 		for (int j = 0; j < FIELD_SIZE; j++) {
-			//Внутренние квадраты(светлосерые
 			RoundRect
 			(
 				memDC, 

@@ -37,7 +37,7 @@ void Block::SetPos(int i, int j)
 
 void Block::SetColor()
 {
-	int curNum = log2(this->value);
+	int curNum = (log2(this->value) <= 16) ? (log2(this->value)) : 16;
 	this->color = Colors[curNum - 1];
 }
 
