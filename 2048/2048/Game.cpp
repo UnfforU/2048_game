@@ -133,9 +133,10 @@ bool Game::KeyUpHandler(bool isTest) {
                         isAnyChange = true;
                         continue;
                     }
-                    if (field[l][j].value == field[x][j].value) {
+                    if ((field[l][j].value == field[x][j].value) && field[l][j].isUnitable && field[x][j].isUnitable) {
                         field[l][j].value *= 2;
                         field[l][j].SetColor();
+                        field[l][j].isUnitable = false;
                         field[x][j].value = 0;
                         field[x][j].SetColor();
                         if(!isTest)
@@ -148,6 +149,10 @@ bool Game::KeyUpHandler(bool isTest) {
                     }
                 }
             }
+
+    for (int i = 0; i < FIELD_SIZE; i++)
+        for (int j = 0; j < FIELD_SIZE; j++)
+            field[i][j].isUnitable = true;
 
     return isAnyChange;
 }
@@ -168,9 +173,10 @@ bool Game::KeyDownHandler(bool isTest) {
                         isAnyChange = true;
                         continue;
                     }
-                    if (field[l][j].value == field[x][j].value) {
+                    if (field[l][j].value == field[x][j].value && field[l][j].isUnitable && field[x][j].isUnitable) {
                         field[l][j].value *= 2;
                         field[l][j].SetColor();
+                        field[l][j].isUnitable = false;
                         field[x][j].value = 0;
                         field[x][j].SetColor();
                         if (!isTest)
@@ -183,6 +189,11 @@ bool Game::KeyDownHandler(bool isTest) {
                     }
                 }
             }
+
+    for (int i = 0; i < FIELD_SIZE; i++)
+        for (int j = 0; j < FIELD_SIZE; j++)
+            field[i][j].isUnitable = true;
+
     return isAnyChange;
 }
 
@@ -202,9 +213,10 @@ bool Game::KeyLeftHandler(bool isTest) {
                         x = l;
                         continue;
                     }
-                    if (field[i][l].value == field[i][x].value) {
+                    if (field[i][l].value == field[i][x].value && field[i][l].isUnitable && field[i][x].isUnitable) {
                         field[i][l].value *= 2;
                         field[i][l].SetColor();
+                        field[i][l].isUnitable = false;
                         field[i][x].value = 0;
                         field[i][x].SetColor();
                         if(!isTest)
@@ -217,6 +229,11 @@ bool Game::KeyLeftHandler(bool isTest) {
                     }
                 }
             }
+
+    for (int i = 0; i < FIELD_SIZE; i++)
+        for (int j = 0; j < FIELD_SIZE; j++)
+            field[i][j].isUnitable = true;
+
     return isAnyChange;
 }
 
@@ -237,9 +254,10 @@ bool Game::KeyRightHandler(bool isTest) {
 
                         continue;
                     }
-                    if (field[i][l].value == field[i][x].value) {
+                    if (field[i][l].value == field[i][x].value && field[i][l].isUnitable && field[i][x].isUnitable) {
                         field[i][l].value *= 2;
                         field[i][l].SetColor();
+                        field[i][l].isUnitable = false;
                         field[i][x].value = 0;
                         field[i][x].SetColor();
                         if (!isTest)
@@ -252,12 +270,17 @@ bool Game::KeyRightHandler(bool isTest) {
                     }
                 }
             }
+
+    for (int i = 0; i < FIELD_SIZE; i++)
+        for (int j = 0; j < FIELD_SIZE; j++)
+            field[i][j].isUnitable = true;
+
     return isAnyChange;
 }
 
 void Game::SaveIntoHistory()
 {
-    //Двигаем наш массив на один элемент влево(выкидывая 0-ой, самый старый ход)
+    //Двигаем наш массив на один элемент влево(выкидывая 0-ой: самый старый ход)
     if (currHistoryPos >= HISTORY_SIZE - 1) {
         for (int k = 1; k < HISTORY_SIZE; k++) {
             for (int j = 0; j < FIELD_SIZE; j++) {

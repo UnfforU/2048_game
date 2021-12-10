@@ -6,9 +6,10 @@ class Block
 {
 public:
 	Point pos;
+	Point prevPos;
 	long int value;
 	COLORREF color;
-	bool isAnimMove = false;
+	bool isUnitable = true;
 
 	void SetPos(int i, int j);
 	void SetColor();

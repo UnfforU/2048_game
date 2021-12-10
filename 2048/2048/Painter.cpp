@@ -17,8 +17,10 @@ void Painter::SetHWND(HWND hWnd)
 {
 	this->hDC = GetDC(hWnd);
 	this->memDC = CreateCompatibleDC(hDC);
+
 	this->hWnd = hWnd;
 	this->hBitmap = CreateCompatibleBitmap(hDC, WINDOW_WIDTH, WINDOW_HEIGHT);
+
 
 
 	SelectObject(memDC, hBitmap);
@@ -103,7 +105,7 @@ void Painter::DrawMainElements(int currScore, int bestScore)
 	HBRUSH hBrush;
 	
 	HFONT oldFont, newFont;
-	newFont = CreateFont(20, 0, 0, 0, 0, 0, 0, 0, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_DONTCARE, L"Arial");
+	newFont = CreateFont(20, 0, 0, 0, FW_DEMIBOLD, 0, 0, 0, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_DONTCARE, L"Arial");
 	oldFont = static_cast<HFONT>(SelectObject(memDC, newFont));
 
 #pragma region Прямоугольник с текущим счетом 

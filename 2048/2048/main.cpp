@@ -7,6 +7,7 @@
 
 RECT clientRect;
 HWND hWnd{};
+HWND hWnd_btn{};
 
 int windowWidth;
 int windowHeight;
@@ -20,6 +21,8 @@ bool isEnd;
 Painter* painter;
 Game* game;
 
+bool isRepeat = false;
+
 
 void UpdateWinSizeParams(HWND hWnd);
 
@@ -28,6 +31,7 @@ int WINAPI WinMain(HINSTANCE hInstanse, HINSTANCE, LPSTR lpCmdLine, int nCmdShow
 
 
 void StartGameInitialize(int size);
+void DrawButton(LPDRAWITEMSTRUCT lpInfo);
 void ObjRefClean();
 
 
@@ -45,7 +49,17 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
 	int n;
 	switch (uMsg)
 	{
+	case WM_DRAWITEM:
+	{
+		DrawButton((LPDRAWITEMSTRUCT)lParam);
+		return true;
+	}
 	case WM_COMMAND:
+		if (lParam == (LPARAM)hWnd_btn) {
+			game->SetLastHistoryToField();
+			InvalidateRect(hWnd, NULL, 1);
+			break;
+		}
 		switch (LOWORD(wParam))
 		{
 		case ID_KEY_UP:
@@ -125,28 +139,30 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
 		default:
 			break;
 		}
-		
+	case WM_ERASEBKGND:
+		return (LRESULT)1;
 	case WM_PAINT:
 		if (game->bestScore < game->score) { game->bestScore = game->score; };
 
+			
 		painter->Redraw(*game);
 
 		instance = game->isGameOver();
 		switch (instance)
 		{
 		case 0: //Проигрыш, даем выбор игроку, либо начать новую, либо откатить ход
-			n = MessageBox(hWnd, TEXT("\t    YOU LOSE!!!\nDo you want to go back?"), TEXT("GAME OVER"), MB_YESNO);
+			n = MessageBox(hWnd, TEXT("\tYOU LOSE!!!\nDo you want to start NEW GAME?"), TEXT("GAME OVER"), MB_YESNO);
 			if (n == IDYES) {
-				game->SetLastHistoryToField();
-				InvalidateRect(hWnd, NULL, 1);
-			}
-			else {
 				SaveBestScore(game->bestScore);
 				game->StartNewGame(hWnd);
 			}
+			else {
+				game->SetLastHistoryToField();
+				InvalidateRect(hWnd, NULL, 1);
+			}
 			break;
 		case 1: //Игрок собрал 2048 первый раз, оповещаем об этом
-			n = MessageBox(hWnd, TEXT("\t      YOU WIN!!!\nDo you want to continue game?"), TEXT("YOU WIN"), MB_OK);
+			n = MessageBox(hWnd, TEXT("\tYOU WIN!!!\nSet INFINITE mode"), TEXT("YOU WIN"), MB_OK);
 			break;
 		default:
 			break;
@@ -188,6 +204,7 @@ int WINAPI WinMain(HINSTANCE hInstanse, HINSTANCE, LPSTR lpCmdLine, int nCmdShow
 	HACCEL hAccel = LoadAccelerators(hInstanse, MAKEINTRESOURCE(IDR_ACCELERATOR2));
 
 
+
 	hWnd = CreateWindowEx
 	(
 		0,
@@ -205,6 +222,10 @@ int WINAPI WinMain(HINSTANCE hInstanse, HINSTANCE, LPSTR lpCmdLine, int nCmdShow
 	);
 	if (hWnd == INVALID_HANDLE_VALUE)
 		return EXIT_FAILURE;
+
+	hWnd_btn = CreateWindow(L"Button", L"Btn_turn_back", WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | BS_OWNERDRAW | BS_PUSHBUTTON, PLAYINGFIELD_MARGIN, 120, 100, 35, hWnd, NULL, hInstanse, NULL);
+	HRGN rgn = CreateRoundRectRgn(0, 0, 100, 35, 20, 15);
+	SetWindowRgn(hWnd_btn, rgn, TRUE);
 
 	UpdateWinSizeParams(hWnd);
 
@@ -240,6 +261,49 @@ void StartGameInitialize(int size)
 
 	painter = new Painter();
 	game = new Game(hWnd);
+}
+
+
+void DrawButton(LPDRAWITEMSTRUCT lpInfo) {
+	HGDIOBJ obj;
+	HBRUSH noactive = CreateSolidBrush(RGB(143, 122, 101)), focus = CreateSolidBrush(RGB(0, 255, 0)), select = CreateSolidBrush(RGB(115, 100, 86));
+	HBITMAP bm;
+	HDC Owner;
+
+	Owner = CreateCompatibleDC(lpInfo->hDC);
+	bm = CreateCompatibleBitmap(lpInfo->hDC, lpInfo->rcItem.right, lpInfo->rcItem.bottom);
+	obj = SelectObject(Owner, bm);
+	FillRect(Owner, &lpInfo->rcItem, noactive);
+	switch (lpInfo->itemAction)
+	{
+	case ODA_FOCUS:
+		if (lpInfo->itemState & ODS_FOCUS)
+			FillRect(Owner, &lpInfo->rcItem, focus);
+		if (lpInfo->itemState & ODS_CHECKED)
+			FillRect(Owner, &lpInfo->rcItem, noactive);
+		break;
+	case ODA_SELECT:
+		if (lpInfo->itemState & ODS_SELECTED)
+			FillRect(Owner, &lpInfo->rcItem, select);
+		break;
+	case ODA_DRAWENTIRE:
+		FillRect(Owner, &lpInfo->rcItem, noactive);
+		break;
+	}
+
+	wchar_t wtext[] = L"Turn back";
+	SetBkMode(Owner, TRANSPARENT);
+	SetTextColor(Owner, RGB(227, 216, 205));
+
+	HFONT oldFont, newFont;
+	newFont = CreateFont(15, 0, 0, 0, 0, 0, 0, 0, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_DONTCARE, L"Arial");
+	oldFont = (HFONT)SelectObject(lpInfo->hDC, newFont);
+	TextOut(Owner, GetDeltaX(100, lpInfo->hDC, wtext) - 5, 9, wtext, wcslen(wtext));
+	SelectObject(lpInfo->hDC, oldFont);
+
+	BitBlt(lpInfo->hDC, 0, 0, lpInfo->rcItem.right, lpInfo->rcItem.bottom, Owner, 0, 0, SRCCOPY);
+	DeleteObject(SelectObject(Owner, obj));
+	DeleteDC(Owner);
 }
 
 void ObjRefClean()

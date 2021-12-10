@@ -14,6 +14,7 @@ public:
 	void PaintOneFrame(Game game);
 	void DrawMainElements(int currScore, int bestScore);
 
+
 	~Painter();
 
 private:
@@ -24,6 +25,8 @@ private:
 	HWND hWnd;
 	HBITMAP hBitmap;
 	PAINTSTRUCT paintstruct;
+
+
 
 	//float TILE_SIZE;
 };
