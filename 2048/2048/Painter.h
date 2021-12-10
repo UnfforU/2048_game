@@ -11,6 +11,7 @@ public:
 	//»нициализируем все свойства, свз€анные с окном. «аливаем окно
 	void SetHWND(HWND hWnd);
 	void Redraw(Game game);
+	void PaintOneFrame(Game game);
 	void DrawMainElements(int currScore, int bestScore);
 
 	~Painter();
@@ -23,5 +24,6 @@ private:
 	HWND hWnd;
 	HBITMAP hBitmap;
 	PAINTSTRUCT paintstruct;
+
 	//float TILE_SIZE;
 };

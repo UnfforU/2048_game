@@ -11,7 +11,7 @@ extern int FIELD_SIZE;
 
 
 Game::Game(HWND hWnd) :
-score(0), elementsCount(0), bestScore(0) {
+score(0), elementsCount(0), bestScore(0), isGodMode(false) {
 
     bool newGame = true;
     string buffStr, path; 
@@ -63,6 +63,7 @@ score(0), elementsCount(0), bestScore(0) {
             field[i][j].value = saveField[i][j];
             field[i][j].SetPos(i, j);
             field[i][j].SetColor();
+            if (saveField[i][j] >= 2048) { isGodMode = true; }
         }
     }
 
@@ -79,6 +80,7 @@ void Game::StartNewGame(HWND hWnd)
 {
     score = 0;
     elementsCount = 0;
+    isGodMode = false;
     bestScore = GetBestScore();
     for (int i = 0; i < FIELD_SIZE; i++)
         for (int j = 0; j < FIELD_SIZE; j++) {
@@ -255,10 +257,53 @@ bool Game::KeyRightHandler(bool isTest) {
 
 void Game::SaveIntoHistory()
 {
-    
+    //ƒвигаем наш массив на один элемент влево(выкидыва€ 0-ой, самый старый ход)
+    if (currHistoryPos >= HISTORY_SIZE - 1) {
+        for (int k = 1; k < HISTORY_SIZE; k++) {
+            for (int j = 0; j < FIELD_SIZE; j++) {
+                for (int i = 0; i < FIELD_SIZE; i++) {
+                    historyField[i][j][k - 1].value = historyField[i][j][k].value;
+                    historyField[i][j][k - 1].SetPos(i, j);
+                    historyField[i][j][k - 1].SetColor();
+                }
+            }
+        }
+
+        for (int k = 1; k < HISTORY_SIZE; k++) {
+            scoreHistory[k - 1] = scoreHistory[k];
+        }
+
+        currHistoryPos = HISTORY_SIZE - 1;
+    }
+
+    //ƒелаем новую запись
+    scoreHistory[currHistoryPos] = score;
+    for (int i = 0; i < FIELD_SIZE; i++) {
+        for (int j = 0; j < FIELD_SIZE; j++) {
+            historyField[i][j][currHistoryPos].value = field[i][j].value;
+            historyField[i][j][currHistoryPos].SetPos(i, j);
+            historyField[i][j][currHistoryPos].SetColor();
+        }
+    }
+
+    currHistoryPos++;
 }
 
+void Game::SetLastHistoryToField() 
+{
+    if (currHistoryPos == 0) { return; }
+    
+    int lastHistoryPos = --currHistoryPos;
+    for (int i = 0; i < FIELD_SIZE; i++) {
+        for (int j = 0; j < FIELD_SIZE; j++) {
+            field[i][j].value = historyField[i][j][lastHistoryPos].value;
+            field[i][j].SetPos(i, j);
+            field[i][j].SetColor();
+        }
+    }
 
+    score = scoreHistory[lastHistoryPos];
+}
 
 void Game::SaveResultsInFile()
 {
@@ -284,12 +329,18 @@ void Game::SaveResultsInFile()
 }
 
 
-bool Game::isGameOver()
+int Game::isGameOver()
 {
-    bool result = false;
+    /*
+    2 - продолжаем играть(обычный/бессконечный режим)
+    1 - победа, оповещаем о победе
+    0 - проигрыш
+    */
+
+    int result = 2;
     for (int i = 0; i < FIELD_SIZE; i++)
         for (int j = 0; j < FIELD_SIZE; j++)
-            if (field[i][j].value == 2048) { result = true; }
+            if (field[i][j].value == 2048 && !isGodMode) { result = 1; return result; }
 
     //—охран€ем наше поле
     Block temp[MAX_FIELD_SIZE][MAX_FIELD_SIZE];
@@ -309,18 +360,18 @@ bool Game::isGameOver()
     RandomizeValueOneTile();
     KeyRightHandler(true);
 
-    bool isSame = true;
+    bool isLose = true;
 
     for (int i = 0; i < FIELD_SIZE; i++) {
         for (int j = 0; j < FIELD_SIZE; j++) {
             if (temp[i][j].value != field[i][j].value) {
-                isSame = false;
+                isLose = false;
                 break;
             }
         }
     }
 
-    if (isSame) { result = true; }
+    if (isLose) { result = 0; }
     else {
         for (int i = 0; i < FIELD_SIZE; i++) {
             for (int j = 0; j < FIELD_SIZE; j++) {
@@ -328,8 +379,8 @@ bool Game::isGameOver()
                 field[i][j].SetColor();
                 field[i][j].SetPos(i, j);
             }
-
         }
+        result = 2;
     }
     return result;
 }

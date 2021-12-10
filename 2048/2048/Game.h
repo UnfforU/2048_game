@@ -8,12 +8,13 @@ public:
 	Block field[MAX_FIELD_SIZE][MAX_FIELD_SIZE];
 	Block historyField[MAX_FIELD_SIZE][MAX_FIELD_SIZE][HISTORY_SIZE];
 	long int saveField[MAX_FIELD_SIZE][MAX_FIELD_SIZE];
-	unsigned long long int score;
-	unsigned long long int scoreHistory[HISTORY_SIZE];
+	long long int score;
+	long long int scoreHistory[HISTORY_SIZE];
 	int currHistoryPos = 0;
-	unsigned long long int bestScore;
+	long long int bestScore;
 	int elementsCount;
 	bool isNewGame;
+	bool isGodMode;
 
 
 
@@ -30,9 +31,11 @@ public:
 	bool KeyRightHandler(bool isTest);
 
 	void SaveIntoHistory();
+	void SetLastHistoryToField();
+
 	void SaveResultsInFile();
 
-	bool isGameOver();
+	int isGameOver();
 
 	~Game();
 

@@ -27,8 +27,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 int WINAPI WinMain(HINSTANCE hInstanse, HINSTANCE, LPSTR lpCmdLine, int nCmdShow);
 
 
-void FirstInitialize();
-void FinalClean();
+void StartGameInitialize(int size);
+void ObjRefClean();
 
 
 
@@ -41,33 +41,87 @@ void UpdateWinSizeParams(HWND hWnd) {
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
 
+	int instance;
+	int n;
 	switch (uMsg)
 	{
 	case WM_COMMAND:
 		switch (LOWORD(wParam))
 		{
 		case ID_KEY_UP:
-			if(game->KeyUpHandler(false))
+			game->SaveIntoHistory();
+			if (game->KeyUpHandler(false))
 				game->RandomizeValueOneTile();
+			else
+				game->currHistoryPos--;
+
 			InvalidateRect(hWnd, NULL, 1);
 			break;
 		case ID_KEY_DOWN:
+			game->SaveIntoHistory();
 			if (game->KeyDownHandler(false))
 				game->RandomizeValueOneTile();
+			else
+				game->currHistoryPos--;
+
 			InvalidateRect(hWnd, NULL, 1);
 			break;
 		case ID_KEY_LEFT:
+			game->SaveIntoHistory();
 			if (game->KeyLeftHandler(false))
 				game->RandomizeValueOneTile();
+			else
+				game->currHistoryPos--;
+
 			InvalidateRect(hWnd, NULL, 1);
 			break;
 		case ID_KEY_RIGHT:
+			game->SaveIntoHistory();
 			if (game->KeyRightHandler(false))
 				game->RandomizeValueOneTile();
+			else
+				game->currHistoryPos--;
+
 			InvalidateRect(hWnd, NULL, 1);
 			break;
 		case ID_KEY_BACK:
+			game->SetLastHistoryToField();
+			InvalidateRect(hWnd, NULL, 1);
 			break;
+		case ID_CONSTROLS_NEWGAME:
+			SaveBestScore(game->bestScore);
+			game->StartNewGame(hWnd);
+			break;
+		case ID_MODES_3X3:
+			game->SaveResultsInFile();
+			ObjRefClean();
+			StartGameInitialize(3);
+			painter->SetHWND(hWnd);
+			InvalidateRect(hWnd, NULL, 1);
+			break;
+		case ID_MODES_4X4:
+			game->SaveResultsInFile();
+			ObjRefClean();
+			StartGameInitialize(4);
+			painter->SetHWND(hWnd);
+			InvalidateRect(hWnd, NULL, 1);
+			break;
+		case ID_MODES_5X5:
+			game->SaveResultsInFile();
+			ObjRefClean();
+			StartGameInitialize(5);
+			painter->SetHWND(hWnd);
+			InvalidateRect(hWnd, NULL, 1);
+			break;
+		case ID_MODES_6X6:
+			game->SaveResultsInFile();
+			ObjRefClean();
+			StartGameInitialize(6);
+			painter->SetHWND(hWnd);
+			InvalidateRect(hWnd, NULL, 1);
+			break;
+		case ID_HELP:
+			MessageBox(hWnd, TEXT("©Marian Kozlovskiy, 2021\n"), TEXT("Help"), MB_OK);
 		default:
 			break;
 		}
@@ -76,19 +130,28 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
 		if (game->bestScore < game->score) { game->bestScore = game->score; };
 
 		painter->Redraw(*game);
-		//isEnd = (game->isGameOver()) ? true : false;
-		if (game->isGameOver()) {
-			int n = MessageBox(hWnd, TEXT("\t    YOU LOOSE!!!\nDo you want to go back?"), TEXT("GAME OVER"), MB_YESNO);
+
+		instance = game->isGameOver();
+		switch (instance)
+		{
+		case 0: //Проигрыш, даем выбор игроку, либо начать новую, либо откатить ход
+			n = MessageBox(hWnd, TEXT("\t    YOU LOSE!!!\nDo you want to go back?"), TEXT("GAME OVER"), MB_YESNO);
 			if (n == IDYES) {
-				//GetLastFromHistory();
+				game->SetLastHistoryToField();
 				InvalidateRect(hWnd, NULL, 1);
 			}
 			else {
 				SaveBestScore(game->bestScore);
 				game->StartNewGame(hWnd);
 			}
+			break;
+		case 1: //Игрок собрал 2048 первый раз, оповещаем об этом
+			n = MessageBox(hWnd, TEXT("\t      YOU WIN!!!\nDo you want to continue game?"), TEXT("YOU WIN"), MB_OK);
+			break;
+		default:
+			break;
 		}
-		break;
+	break;
 	case WM_DESTROY:
 		game->SaveResultsInFile();
 		PostQuitMessage(0);
@@ -148,7 +211,7 @@ int WINAPI WinMain(HINSTANCE hInstanse, HINSTANCE, LPSTR lpCmdLine, int nCmdShow
 	SetMenu(hWnd, hMenu);
 	
 
-	FirstInitialize();
+	StartGameInitialize(4);
 
 	painter->SetHWND(hWnd);
 	//game->StartNewGame(hWnd);
@@ -165,13 +228,13 @@ int WINAPI WinMain(HINSTANCE hInstanse, HINSTANCE, LPSTR lpCmdLine, int nCmdShow
 		}
 	}
 	
-	FinalClean();
+	ObjRefClean();
 	return static_cast<int>(msg.wParam);
 }
 
-void FirstInitialize()
+void StartGameInitialize(int size)
 {
-	FIELD_SIZE = 4;
+	FIELD_SIZE = size;
 	currTilePadding = TILE_PADDING[FIELD_SIZE - 3];
 	TILE_SIZE = PLAYINGFIELD_SIZE / FIELD_SIZE - 2 * currTilePadding;
 
@@ -179,7 +242,7 @@ void FirstInitialize()
 	game = new Game(hWnd);
 }
 
-void FinalClean()
+void ObjRefClean()
 {
 	delete(painter);
 	delete(game);

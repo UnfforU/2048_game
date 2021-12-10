@@ -8,6 +8,7 @@ public:
 	Point pos;
 	long int value;
 	COLORREF color;
+	bool isAnimMove = false;
 
 	void SetPos(int i, int j);
 	void SetColor();

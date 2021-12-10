@@ -17,15 +17,14 @@ int GetCentreXPosByLeng(int length, int blockSize)
 	return blockSize/2 - length * (length / 2);
 }
 
-int GetDeltaX(int num) {
-	if (num > 1000)
-		return TILE_SIZE / 2 - 5;
-	if (num > 100)
-		return TILE_SIZE / 2 - 3;
-	if (num > 10)
-		return TILE_SIZE / 2 - 12;
-	return TILE_SIZE / 2 - 5;
+int GetDeltaX(int rectSize, HDC hDC, LPCWSTR str)
+{
+	SIZE res;
+	GetTextExtentPoint32(hDC, str, wcslen(str), &res);
+	return rectSize / 2 - res.cx / 2;
 }
+
+
 
 string intToStr(int num) {
 	static stringstream toStrConverter;
@@ -82,11 +81,14 @@ int GetBestScore()
 
 void SaveBestScore(int bestScore)
 {
+	int targetBstScore = GetBestScore();
 	ofstream fout("Memory\\BestScore\\best_" + intToStr(FIELD_SIZE) + ".dat", ios_base::out | ios_base::trunc);
 	if (fout.is_open())
 	{
-		string buffStr = intToStr(bestScore);
+		if (targetBstScore < bestScore) { targetBstScore = bestScore; }
+		string buffStr = intToStr(targetBstScore);
 		fout << buffStr;
+		
 		fout.close();
 	}
 	else {CreateNewBestScoreFile(); }

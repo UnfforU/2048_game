@@ -35,12 +35,21 @@ struct Point
      4
  };
 
+ static int FONT_SIZES[4] = {
+     35,
+     25,
+     23,
+     22
+ };
+
 int GetCentreXPosByLeng(int length, int blockSize);
-int GetDeltaX(int num);
+int GetDeltaX(int rectSize, HDC hDC, LPCWSTR str);
 std::string intToStr(int num);
 
 void CreateNewLastSaveFile();
 void CreateNewBestScoreFile();
+
+//int GetStringWidth(char* text, HFONT font);
 
 int GetBestScore();
 void SaveBestScore(int bestScore);

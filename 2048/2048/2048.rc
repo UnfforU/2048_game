@@ -54,14 +54,24 @@ IDR_MENU1 MENU
 BEGIN
     POPUP "Constrols"
     BEGIN
+        MENUITEM "New Game",                    ID_CONSTROLS_NEWGAME
         POPUP "Keys"
         BEGIN
             MENUITEM "Up\t^",                       ID_KEY_UP
             MENUITEM "Down\tv",                     ID_KEY_DOWN
             MENUITEM "Left\t<",                     ID_KEY_LEFT
             MENUITEM "Right\t>",                    ID_KEY_RIGHT
+            MENUITEM "Back\tCtrl+Z",                ID_KEYS_BACK
         END
     END
+    POPUP "Modes"
+    BEGIN
+        MENUITEM "3 x 3",                       ID_MODES_3X3
+        MENUITEM "4 x 4",                       ID_MODES_4X4
+        MENUITEM "5 x 5",                       ID_MODES_5X5
+        MENUITEM "6 x 6",                       ID_MODES_6X6
+    END
+    MENUITEM "Help",                        ID_HELP
 END
 
 

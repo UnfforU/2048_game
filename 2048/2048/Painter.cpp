@@ -19,6 +19,8 @@ void Painter::SetHWND(HWND hWnd)
 	this->memDC = CreateCompatibleDC(hDC);
 	this->hWnd = hWnd;
 	this->hBitmap = CreateCompatibleBitmap(hDC, WINDOW_WIDTH, WINDOW_HEIGHT);
+
+
 	SelectObject(memDC, hBitmap);
 	ReleaseDC(hWnd, hDC);
 }
@@ -26,15 +28,32 @@ void Painter::SetHWND(HWND hWnd)
 void Painter::Redraw(Game game)
 {
 	DrawMainElements(game.score, game.bestScore);
+	
+
+	hDC = BeginPaint(hWnd, &paintstruct);
+	
+	PaintOneFrame(game);
+	BitBlt(hDC, 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, memDC, 0, 0, SRCCOPY);
+	
+	EndPaint(hWnd, &paintstruct);
+	SelectObject(memDC, hBackgroundBrush);
+}
+
+void Painter::PaintOneFrame(Game game)
+{
 	wchar_t buff[100];
-	int fontHeight = 25;
+	int fontHeight;
 	for (int i = 0; i < FIELD_SIZE; i++) {
 		for (int j = 0; j < FIELD_SIZE; j++) {
 			if (game.field[i][j].value != 0) {
 				HBRUSH hBlockBrush = CreateSolidBrush(game.field[i][j].color);
+				fontHeight = FONT_SIZES[FIELD_SIZE - 3];
+
 				SelectObject(memDC, hBlockBrush);
 				RoundRect(memDC, game.field[i][j].pos.x, game.field[i][j].pos.y, game.field[i][j].pos.x + TILE_SIZE, game.field[i][j].pos.y + TILE_SIZE, 15, 13);
-				SetBkColor(memDC, game.field[i][j].color);
+				//SetBkColor(memDC, game.field[i][j].color);
+				SetBkMode(memDC, TRANSPARENT);
+
 
 				if ((game.field[i][j].value == 2) || (game.field[i][j].value == 4)) { SetTextColor(memDC, RGB(119, 110, 101)); }
 				else { SetTextColor(memDC, RGB(255, 255, 255)); }
@@ -45,7 +64,17 @@ void Painter::Redraw(Game game)
 
 				swprintf_s(buff, L"%d\0", game.field[i][j].value);
 
-				int delX = GetDeltaX(game.field[i][j].value);
+				//динамический размер шрифта для больших чисел
+				SIZE res;
+				GetTextExtentPoint32(memDC, buff, wcslen(buff), &res);
+				while (res.cx > TILE_SIZE) {
+					fontHeight--;
+					newFont = CreateFont(fontHeight, 0, 0, 0, 0, 0, 0, 0, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_DONTCARE, L"Arial");
+					SelectObject(memDC, newFont);
+					GetTextExtentPoint32(memDC, buff, wcslen(buff), &res);
+				}
+
+				int delX = GetDeltaX(TILE_SIZE, memDC, buff);
 				int delY = TILE_SIZE / 2 - fontHeight / 2;
 				TextOut(memDC, game.field[i][j].pos.x + delX, game.field[i][j].pos.y + delY, buff, wcslen(buff));
 
@@ -57,12 +86,8 @@ void Painter::Redraw(Game game)
 			}
 		}
 	}
-
-	hDC = BeginPaint(hWnd, &paintstruct);
-	BitBlt(hDC, 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, memDC, 0, 0, SRCCOPY);
-	EndPaint(hWnd, &paintstruct);
-	SelectObject(memDC, hBackgroundBrush);
 }
+
 
 void Painter::DrawMainElements(int currScore, int bestScore) 
 {
@@ -76,6 +101,10 @@ void Painter::DrawMainElements(int currScore, int bestScore)
 	wchar_t scoreTxtBuffer[100];
 
 	HBRUSH hBrush;
+	
+	HFONT oldFont, newFont;
+	newFont = CreateFont(20, 0, 0, 0, 0, 0, 0, 0, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_DONTCARE, L"Arial");
+	oldFont = static_cast<HFONT>(SelectObject(memDC, newFont));
 
 #pragma region Прямоугольник с текущим счетом 
 	swprintf_s(buffer, L"SCORE");
@@ -85,8 +114,12 @@ void Painter::DrawMainElements(int currScore, int bestScore)
 	SelectObject(memDC, hBrush);
 
 	RoundRect(memDC, 20, 10, txtScoreLenght + 120, 70, 15, 13);
-	TextOut(memDC, 50, 20, buffer, wcslen(buffer));//title
-	TextOut(memDC, 20 + GetCentreXPosByLeng(txtScoreLenght, 100), 40, scoreTxtBuffer, wcslen(scoreTxtBuffer));//сам счет
+	TextOut(memDC, 20 + GetDeltaX(txtScoreLenght + 100, memDC, buffer), 20, buffer, wcslen(buffer));//title
+
+	newFont = CreateFont(17, 0, 0, 0, 0, 0, 0, 0, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_DONTCARE, L"Arial");
+	HFONT tmp = static_cast<HFONT>(SelectObject(memDC, newFont));
+	TextOut(memDC, 20 + GetDeltaX(txtScoreLenght + 100, memDC, scoreTxtBuffer), 40, scoreTxtBuffer, wcslen(scoreTxtBuffer));//сам счет
+	SelectObject(memDC, tmp);
 #pragma endregion
 
 #pragma region Прямоугольник с лучшим счетом
@@ -97,8 +130,14 @@ void Painter::DrawMainElements(int currScore, int bestScore)
 	SelectObject(memDC, hBrush);
 
 	RoundRect(memDC, WINDOW_WIDTH - 140 - txtScoreLenght, 10, WINDOW_WIDTH - 40, 70, 15, 13);
-	TextOut(memDC, WINDOW_WIDTH - 105 - txtScoreLenght, 20, buffer, wcslen(buffer));//title
-	TextOut(memDC, WINDOW_WIDTH - 140 - txtScoreLenght + GetCentreXPosByLeng(txtScoreLenght, 100), 40, scoreTxtBuffer, wcslen(scoreTxtBuffer));//сам счет
+
+	int delX = GetDeltaX(100 + txtScoreLenght, memDC, buffer);
+	TextOut(memDC, WINDOW_WIDTH - 140 - txtScoreLenght + delX, 20, buffer, wcslen(buffer));//title
+	newFont = CreateFont(17, 0, 0, 0, 0, 0, 0, 0, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_DONTCARE, L"Arial");
+	SelectObject(memDC, newFont);
+
+	delX = GetDeltaX(txtScoreLenght + 100, memDC, scoreTxtBuffer);
+	TextOut(memDC, WINDOW_WIDTH - 140 - txtScoreLenght + delX, 40, scoreTxtBuffer, wcslen(scoreTxtBuffer));//сам счет
 #pragma endregion
 
 	//Внешний квадрат (темносерый)
@@ -137,6 +176,9 @@ void Painter::DrawMainElements(int currScore, int bestScore)
 		tmpYPadding += currTilePadding;
 	}
 
+	SelectObject(memDC, oldFont);
+	DeleteObject(oldFont);
+	DeleteObject(newFont);
 	DeleteObject(hBrush);
 }
 
