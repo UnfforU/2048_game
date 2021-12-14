@@ -41,14 +41,6 @@ void Block::SetColor()
 	this->color = Colors[curNum - 1];
 }
 
-/*wchar_t* Block::ValueToString()
-{
-	wchar_t* result = new wchar_t[100];
-	swprintf_s(result, 100, L"%d\0", value);
-	return result;
-}*/
-
-
 Block::~Block()
 {
 }

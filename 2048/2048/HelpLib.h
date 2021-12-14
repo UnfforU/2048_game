@@ -46,11 +46,8 @@ int GetCentreXPosByLeng(int length, int blockSize);
 int GetDeltaX(int rectSize, HDC hDC, LPCWSTR str);
 std::string intToStr(int num);
 
-void CreateNewLastSaveFile();
-void CreateNewBestScoreFile();
-
-//int GetStringWidth(char* text, HFONT font);
+void CreateNewLastSaveFile(int field_size);
+void CreateNewBestScoreFile(int field_size);
 
 int GetBestScore();
 void SaveBestScore(int bestScore);
-

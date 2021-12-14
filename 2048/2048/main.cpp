@@ -136,6 +136,17 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
 			break;
 		case ID_HELP:
 			MessageBox(hWnd, TEXT("©Marian Kozlovskiy, 2021\n"), TEXT("Help"), MB_OK);
+
+		case ID_CONSTROLS_RESETALLRESULTS:
+			n = MessageBox(hWnd, TEXT("Do you realy wants to clean all results?"), TEXT("GAME OVER"), MB_YESNO);
+			if (n == IDYES) {
+				CreateNewBestScoreFile(4);
+				game->StartNewGame(hWnd);
+				for (int i = 3; i <= 6; i++) {
+					CreateNewLastSaveFile(i);
+					CreateNewBestScoreFile(i);
+				}
+			}
 		default:
 			break;
 		}
@@ -147,11 +158,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
 			
 		painter->Redraw(*game);
 
-		instance = game->isGameOver();
+		instance = game->IsGameOver();
 		switch (instance)
 		{
 		case 0: //Проигрыш, даем выбор игроку, либо начать новую, либо откатить ход
-			n = MessageBox(hWnd, TEXT("\tYOU LOSE!!!\nDo you want to start NEW GAME?"), TEXT("GAME OVER"), MB_YESNO);
+			n = MessageBox(hWnd, TEXT("YOU LOSE!\nDo you want to start NEW GAME?"), TEXT("GAME OVER"), MB_YESNO);
 			if (n == IDYES) {
 				SaveBestScore(game->bestScore);
 				game->StartNewGame(hWnd);
@@ -162,7 +173,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
 			}
 			break;
 		case 1: //Игрок собрал 2048 первый раз, оповещаем об этом
-			n = MessageBox(hWnd, TEXT("\tYOU WIN!!!\nSet INFINITE mode"), TEXT("YOU WIN"), MB_OK);
+			n = MessageBox(hWnd, TEXT("YOU WIN!\nSet INFINITE mode"), TEXT("YOU WIN"), MB_OK);
 			break;
 		default:
 			break;
@@ -266,7 +277,7 @@ void StartGameInitialize(int size)
 
 void DrawButton(LPDRAWITEMSTRUCT lpInfo) {
 	HGDIOBJ obj;
-	HBRUSH noactive = CreateSolidBrush(RGB(143, 122, 101)), focus = CreateSolidBrush(RGB(0, 255, 0)), select = CreateSolidBrush(RGB(115, 100, 86));
+	HBRUSH noactive = CreateSolidBrush(RGB(143, 122, 101)), focus = CreateSolidBrush(RGB(0, 255, 0)), select = CreateSolidBrush(RGB(64, 57, 50));
 	HBITMAP bm;
 	HDC Owner;
 

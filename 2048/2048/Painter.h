@@ -26,7 +26,4 @@ private:
 	HBITMAP hBitmap;
 	PAINTSTRUCT paintstruct;
 
-
-
-	//float TILE_SIZE;
 };

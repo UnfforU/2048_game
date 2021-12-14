@@ -31,7 +31,7 @@ score(0), elementsCount(0), bestScore(0), isGodMode(false) {
     }
     else 
     { 
-        CreateNewLastSaveFile();
+        CreateNewLastSaveFile(FIELD_SIZE);
         newGame = true; 
     }
 
@@ -346,13 +346,12 @@ void Game::SaveResultsInFile()
         }
         fout.close();
     } 
-    else { CreateNewLastSaveFile(); }
+    else { CreateNewLastSaveFile(FIELD_SIZE); }
 
     SaveBestScore(bestScore);
 }
 
-
-int Game::isGameOver()
+int Game::IsGameOver()
 {
     /*
     2 - продолжаем играть(обычный/бессконечный режим)
@@ -407,6 +406,7 @@ int Game::isGameOver()
     }
     return result;
 }
+
 
 Game::~Game()
 {

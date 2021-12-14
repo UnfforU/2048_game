@@ -17,13 +17,10 @@ public:
 	bool isGodMode;
 
 
-
 	Game(HWND hWnd);
 
 	void StartNewGame(HWND hWnd);
 	void RandomizeValueOneTile();
-
-	//void SaveIntoHistory();
 
 	bool KeyUpHandler(bool isTest);
 	bool KeyDownHandler(bool isTest);
@@ -32,10 +29,9 @@ public:
 
 	void SaveIntoHistory();
 	void SetLastHistoryToField();
-
 	void SaveResultsInFile();
 
-	int isGameOver();
+	int IsGameOver();
 
 	~Game();
 

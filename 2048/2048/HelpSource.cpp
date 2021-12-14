@@ -35,12 +35,12 @@ string intToStr(int num) {
 	return result;
 }
 
-void CreateNewLastSaveFile() 
+void CreateNewLastSaveFile(int field_size) 
 {
-	ofstream newFile("Memory\\LastSave\\save_" + intToStr(FIELD_SIZE) + ".dat");
+	ofstream newFile("Memory\\LastSave\\save_" + intToStr(field_size) + ".dat");
 	if(newFile.is_open())
 	{
-		for (int i = 0; i <= FIELD_SIZE*FIELD_SIZE; i++)
+		for (int i = 0; i <= field_size*field_size; i++)
 		{
 			newFile << "0 ";
 		}
@@ -48,9 +48,9 @@ void CreateNewLastSaveFile()
 	}
 }
 
-void CreateNewBestScoreFile()
+void CreateNewBestScoreFile(int field_size)
 {
-	ofstream newFile("Memory\\BestScore\\best_" + intToStr(FIELD_SIZE) + ".dat");
+	ofstream newFile("Memory\\BestScore\\best_" + intToStr(field_size) + ".dat");
 	if (newFile.is_open())
 	{
 		newFile << "0";
@@ -72,7 +72,7 @@ int GetBestScore()
 	}
 	else 
 	{
-		CreateNewBestScoreFile();
+		CreateNewBestScoreFile(FIELD_SIZE);
 		bestScore = 0; 
 	}
 
@@ -91,5 +91,5 @@ void SaveBestScore(int bestScore)
 		
 		fout.close();
 	}
-	else {CreateNewBestScoreFile(); }
+	else {CreateNewBestScoreFile(FIELD_SIZE); }
 }

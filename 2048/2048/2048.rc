@@ -63,6 +63,7 @@ BEGIN
             MENUITEM "Right\t>",                    ID_KEY_RIGHT
             MENUITEM "Back\tCtrl+Z",                ID_KEYS_BACK
         END
+        MENUITEM "Reset All Results",           ID_CONSTROLS_RESETALLRESULTS
     END
     POPUP "Modes"
     BEGIN
